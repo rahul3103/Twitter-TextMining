@@ -3,9 +3,20 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import re
 
+def word_in_text(word, text):
+    word = word.lower()
+    text = text.lower()
+    match = re.search(word, text)
+    if match:
+        return True
+    return False
 
-
-
+def extract_link(text):
+    regex = r'https?://[^\s<>"]+|www\.[^\s<>"]+'
+    match = re.search(regex, text)
+    if match:
+        return match.group()
+    return ''
 
 
 def main():
@@ -42,6 +53,7 @@ def main():
 	tweets['country'] = map(lambda tweet: tweet['place']['country'] if tweet['place'] != None else None, tweets_data)
 
 	#Analyzing Tweets by Language
+	print 'Analyzing tweets by language\n'
 	tweets_by_lang = tweets['lang'].value_counts()
 	#pd.value_counts(tweets.values.flatten())
 	fig, ax = plt.subplots()
@@ -71,6 +83,21 @@ def main():
 	tweets['cricket'] = tweets['text'].apply(lambda tweet: word_in_text('cricket', tweet))
 	tweets['football'] = tweets['text'].apply(lambda tweet: word_in_text('football', tweet))
 	tweets['tennis'] = tweets['text'].apply(lambda tweet: word_in_text('tennis', tweet))
+
+	#Analyzing Tweets by games: First attempt
+	print 'Analyzing tweets by games: First attempt\n'
+	games = ['cricket', 'football', 'tennis']
+	tweets_by_games = [tweets['cricket'].value_counts()[True], tweets['football'].value_counts()[True], tweets['tennis'].value_counts()[True]]
+	x_pos = list(range(len(games)))
+	width = 0.8
+	fig, ax = plt.subplots()
+	plt.bar(x_pos, tweets_by_games, width, alpha=1, color='g')
+	ax.set_ylabel('Number of tweets', fontsize=15)
+	ax.set_title('Ranking: cricket vs. football vs. tennis (Raw data)', fontsize=10, fontweight='bold')
+	ax.set_xticks([p + 0.4 * width for p in x_pos])
+	ax.set_xticklabels(games)
+	plt.grid()
+	plt.savefig('tweet_by_games_1.png', format='png')
 
 if __name__=='__main__':
 	main()
