@@ -11,14 +11,6 @@ def word_in_text(word, text):
         return True
     return False
 
-def extract_link(text):
-    regex = r'https?://[^\s<>"]+|www\.[^\s<>"]+'
-    match = re.search(regex, text)
-    if match:
-        return match.group()
-    return ''
-
-
 def main():
 
 	tweets_data_path = 'C:/Users/e2sn7cy/Documents/GitHub/twitter_data.txt'
@@ -98,6 +90,7 @@ def main():
 	ax.set_xticklabels(games)
 	plt.grid()
 	plt.savefig('tweet_by_games_1.png', format='png')
+
 
 if __name__=='__main__':
 	main()
