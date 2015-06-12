@@ -2,51 +2,75 @@ import json
 import pandas as pd
 import matplotlib.pyplot as plt
 import re
-from Tkinter import *
 
-tweets_data_path = 'C:/Users/e2sn7cy/Documents/GitHub/twitter_data.txt'
 
-tweets_data = []
 
-tweets_file = open(tweets_data_path, 'r')
 
-for line in tweets_file:
-    try:
-        tweet = json.loads(line)
-    except:
-        continue
-    if not all([x in tweet for x in ['text', 'lang', 'place']]):
-        continue
-    if tweet['place'] and not 'country' in tweet['place']:
-        continue
-    tweets_data.append(tweet)
 
-#print len(tweets_data)
 
-#DataFrame
-tweets = pd.DataFrame()
+def main():
 
-#adding columns
+	tweets_data_path = 'C:/Users/e2sn7cy/Documents/GitHub/twitter_data.txt'
 
-tweets['text'] = map(lambda tweet:tweet['text'] if tweet['text'] else '', tweets_data)
+	tweets_data = []
 
-#tweets['text'] = [tweet['text'] for tweet in tweets_data]
+	tweets_file = open(tweets_data_path, 'r')
 
-tweets['lang'] = map(lambda tweet:tweet['lang'] if tweet['lang'] else '', tweets_data)
+	for line in tweets_file:
+		try:
+			tweet = json.loads(line)
+		except:
+			continue
+    		if not all([x in tweet for x in ['text', 'lang', 'place']]):
+    			continue
+    		if tweet['place'] and not 'country' in tweet['place']:
+    			continue
+    		tweets_data.append(tweet)
 
-#tweets['lang'] = [tweet['lang'] for tweet in tweets_data]
+	#print len(tweets_data)
 
-tweets['country'] = map(lambda tweet: tweet['place']['country'] if tweet['place'] != None else None, tweets_data)
+	#DataFrame
+	#Structuring Tweets
+	tweets = pd.DataFrame()
 
-#Adding Charts
-tweets_by_lang = tweets['lang'].value_counts()
+	#adding columns
 
-#pd.value_counts(tweets.values.flatten())
+	#tweets['text'] = map(lambda tweet:tweet['text'] if tweet['text'] else '', tweets_data)
+	tweets['text'] = [tweet['text'] for tweet in tweets_data]
+	#tweets['lang'] = map(lambda tweet:tweet['lang'] if tweet['lang'] else '', tweets_data)
+	tweets['lang'] = [tweet['lang'] for tweet in tweets_data]
+	tweets['country'] = map(lambda tweet: tweet['place']['country'] if tweet['place'] != None else None, tweets_data)
 
-fig, ax = plt.subplots()
-ax.tick_params(axis='x', labelsize=15)
-ax.tick_params(axis='y', labelsize=10)
-ax.set_xlabel('Languages', fontsize=15)
-ax.set_ylabel('Number of tweets' , fontsize=15)
-ax.set_title('Top 5 languages', fontsize=15, fontweight='bold')
-tweets_by_lang[:5].plot(ax=ax, kind='bar', color='red')
+	#Analyzing Tweets by Language
+	tweets_by_lang = tweets['lang'].value_counts()
+	#pd.value_counts(tweets.values.flatten())
+	fig, ax = plt.subplots()
+	ax.tick_params(axis='x', labelsize=15)
+	ax.tick_params(axis='y', labelsize=10)
+	ax.set_xlabel('Languages', fontsize=15)
+	ax.set_ylabel('Number of tweets',fontsize=15)
+	ax.set_title('Top 5 languages', fontsize=15, fontweight='bold')
+	tweets_by_lang[:5].plot(ax=ax, kind='bar', color='red')
+	plt.savefig('tweet_by_lang.png', format='png')
+
+
+	#Analyzing Tweets by Country
+	print 'Analyzing tweets by country\n'
+	tweets_by_country = tweets['country'].value_counts()
+	fig, ax = plt.subplots()
+	ax.tick_params(axis='x', labelsize=15)
+	ax.tick_params(axis='y', labelsize=10)
+	ax.set_xlabel('Countries', fontsize=15)
+	ax.set_ylabel('Number of tweets' , fontsize=15)
+	ax.set_title('Top 5 countries', fontsize=15, fontweight='bold')
+	tweets_by_country[:5].plot(ax=ax, kind='bar', color='blue')
+	plt.savefig('tweet_by_country.png', format='png')
+
+	#Adding games columns to the tweets DataFrame
+	print 'Adding game tags to the data\n'
+	tweets['cricket'] = tweets['text'].apply(lambda tweet: word_in_text('cricket', tweet))
+	tweets['football'] = tweets['text'].apply(lambda tweet: word_in_text('football', tweet))
+	tweets['tennis'] = tweets['text'].apply(lambda tweet: word_in_text('tennis', tweet))
+
+if __name__=='__main__':
+	main()
